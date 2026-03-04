@@ -1,0 +1,35 @@
+{
+  "name": "ssbw-backend",
+  "version": "0.1.0",
+  "description": "Backend Express para scraping de productos de gatos en Kiwoko",
+  "keywords": [
+    "express",
+    "playwright",
+    "scraping"
+  ],
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "scrape": "node src/scripts/runScrape.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "db:push": "prisma db push"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "playwright": "^1.55.1",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prisma": "^6.4.1"
+  }
+}
