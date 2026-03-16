@@ -1,0 +1,12 @@
+{"timestamp":"2026-03-16T19:13:54.692Z","action":"add","product":{"id":39,"title":"Producto prueba"},"cartCount":1,"totalAmount":37.69}
+{"timestamp":"2026-03-16T19:13:59.504Z","action":"remove","product":{"id":39,"title":"Producto prueba"},"cartCount":0,"totalAmount":0}
+{"timestamp":"2026-03-16T19:13:59.516Z","action":"checkout","product":null,"cartCount":2,"totalAmount":55.48}
+{"timestamp":"2026-03-16T19:37:15.984Z","action":"add","product":{"id":35,"title":"NTH88587"},"cartCount":1,"totalAmount":0}
+{"timestamp":"2026-03-16T19:37:17.624Z","action":"add","product":{"id":8,"title":"ORJOFTC01"},"cartCount":2,"totalAmount":0}
+{"timestamp":"2026-03-16T19:37:24.627Z","action":"add","product":{"id":32,"title":"ADV577119"},"cartCount":3,"totalAmount":0}
+{"timestamp":"2026-03-16T20:16:29.310Z","action":"remove","product":{"id":35,"title":"NTH88587"},"cartCount":2,"totalAmount":0}
+{"timestamp":"2026-03-16T20:16:29.878Z","action":"remove","product":{"id":8,"title":"ORJOFTC01"},"cartCount":1,"totalAmount":0}
+{"timestamp":"2026-03-16T20:16:30.361Z","action":"remove","product":{"id":32,"title":"ADV577119"},"cartCount":0,"totalAmount":0}
+{"timestamp":"2026-03-16T20:16:41.356Z","action":"add","product":{"id":35,"title":"NTH88587"},"cartCount":1,"totalAmount":4.99}
+{"timestamp":"2026-03-16T20:20:45.824Z","action":"add","product":{"id":35,"title":"NTH88587"},"cartCount":2,"totalAmount":9.98}
+{"timestamp":"2026-03-16T20:20:47.879Z","action":"add","product":{"id":8,"title":"ORJOFTC01"},"cartCount":3,"totalAmount":43.17}

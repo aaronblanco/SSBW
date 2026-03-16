@@ -7,17 +7,16 @@ function parsePrice(rawPrice) {
     return null;
   }
 
-  const normalized = String(rawPrice)
-    .replace(/\s+/g, ' ')
-    .replace(/[^\d,.-]/g, '')
-    .trim()
-    .replace(/\./g, '')
-    .replace(',', '.');
+  const str = String(rawPrice).trim();
+  const match = str.match(/(\d+[.,]\d+|\d+)/);
+  if (!match) {
+    return null;
+  }
 
-  const value = Number(normalized);
+  const numStr = match[1].replace(',', '.');
+  const value = Number(numStr);
   return Number.isFinite(value) ? value : null;
 }
-
 function normalizeText(value) {
   return value ? String(value).replace(/\s+/g, ' ').trim() : '';
 }
@@ -158,16 +157,21 @@ async function extractFromPage(page) {
 
   const now = new Date().toISOString();
 
-  return items.map((item) => ({
-    source: 'kiwoko',
-    title: normalizeText(item.title),
-    price: parsePrice(item.rawPrice),
-    rawPrice: normalizeText(item.rawPrice),
-    currency: item.currency || 'EUR',
-    url: item.url,
-    image: item.image,
-    scrapedAt: now
-  }));
+  return items.map((item) => {
+    const parsedPrice = parsePrice(item.rawPrice);
+    return {
+      source: 'kiwoko',
+      title: normalizeText(item.title),
+      price: parsedPrice,
+      rawPrice: Number.isFinite(parsedPrice)
+        ? `${parsedPrice.toFixed(2)} EUR`
+        : normalizeText(item.rawPrice),
+      currency: item.currency || 'EUR',
+      url: item.url,
+      image: item.image,
+      scrapedAt: now
+    };
+  });
 }
 
 async function extractCategoryLinks(page) {

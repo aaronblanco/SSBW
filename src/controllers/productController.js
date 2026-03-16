@@ -51,7 +51,77 @@ async function listProducts(req, res) {
   }
 }
 
+async function getProductDetail(req, res) {
+  const id = Number(req.params.id);
+
+  try {
+    const item = await productService.getProductById(id);
+
+    if (!item) {
+      res.status(404).json({
+        error: 'Producto no encontrado'
+      });
+      return;
+    }
+
+    res.json(item);
+  } catch (error) {
+    res.status(500).json({
+      error: 'No se pudo obtener el detalle del producto',
+      detail: error.message
+    });
+  }
+}
+
+async function createProduct(req, res) {
+  try {
+    const item = await productService.createProduct(req.body || {});
+    res.status(201).json(item);
+  } catch (error) {
+    res.status(400).json({
+      error: 'No se pudo crear el producto',
+      detail: error.message
+    });
+  }
+}
+
+async function updateProduct(req, res) {
+  try {
+    const item = await productService.updateProduct(req.params.id, req.body || {});
+    if (!item) {
+      res.status(404).json({ error: 'Producto no encontrado' });
+      return;
+    }
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({
+      error: 'No se pudo actualizar el producto',
+      detail: error.message
+    });
+  }
+}
+
+async function deleteProduct(req, res) {
+  try {
+    const item = await productService.deleteProduct(req.params.id);
+    if (!item) {
+      res.status(404).json({ error: 'Producto no encontrado' });
+      return;
+    }
+    res.json({ ok: true, id: item.id });
+  } catch (error) {
+    res.status(400).json({
+      error: 'No se pudo eliminar el producto',
+      detail: error.message
+    });
+  }
+}
+
 module.exports = {
   scrapeAndSaveKiwokoProducts,
-  listProducts
+  listProducts,
+  getProductDetail,
+  createProduct,
+  updateProduct,
+  deleteProduct
 };

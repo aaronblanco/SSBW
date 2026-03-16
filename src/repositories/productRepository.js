@@ -70,8 +70,33 @@ async function count({ search = '' } = {}) {
   return prisma.product.count({ where });
 }
 
+async function findById(id) {
+  return prisma.product.findUnique({
+    where: { id }
+  });
+}
+
+async function createProduct(data) {
+  return prisma.product.create({ data });
+}
+
+async function updateProduct(id, data) {
+  return prisma.product.update({
+    where: { id },
+    data
+  });
+}
+
+async function deleteProduct(id) {
+  return prisma.product.delete({ where: { id } });
+}
+
 module.exports = {
   upsertMany,
   findMany,
-  count
+  count,
+  findById,
+  createProduct,
+  updateProduct,
+  deleteProduct
 };
