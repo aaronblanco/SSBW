@@ -22,7 +22,8 @@ function authHeaders(extra = {}) {
 
 async function apiMe() {
   const response = await fetch('/api/auth/me', {
-    headers: authHeaders()
+    headers: authHeaders(),
+    credentials: 'include'
   });
 
   if (!response.ok) {
@@ -37,6 +38,7 @@ async function login(email, password) {
   const response = await fetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ email, password })
   });
 
@@ -53,6 +55,7 @@ async function register(payload) {
   const response = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload)
   });
 
@@ -69,7 +72,8 @@ async function logout() {
   try {
     await fetch('/api/auth/logout', {
       method: 'POST',
-      headers: authHeaders()
+      headers: authHeaders(),
+      credentials: 'include'
     });
   } finally {
     setToken('');

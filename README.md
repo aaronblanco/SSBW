@@ -65,6 +65,24 @@ npm run dev
 - `GET /api/products/scrape/kiwoko` igual que el anterior (útil para pruebas rápidas).
 - Compatibilidad antigua: `GET /api/scrape/kiwoko`
 
+### Auth (web + Android)
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/auth/logout`
+
+El backend emite un JWT y soporta dos modos a la vez:
+
+- Web: cookie `httpOnly` (`access_token`).
+- Android/API clients: header `Authorization: Bearer <token>`.
+
+Variable recomendada en `.env`:
+
+```env
+JWT_SECRET=pon_aqui_un_secreto_largo
+```
+
 ## Protocolos
 
 - HTTP: API REST + página de búsqueda Bootstrap.

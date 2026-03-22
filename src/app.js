@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const productRoutes = require('./routes/productRoutes');
 const productController = require('./controllers/productController');
@@ -12,6 +13,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(path.resolve(__dirname, '..', 'public')));
 
 app.get('/health', (_, res) => {

@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const userRepository = require('../repositories/userRepository');
-const sessionStore = require('../auth/sessionStore');
+const { signAuthToken, verifyAuthToken } = require('../auth/jwtService');
 
 const ADMIN_EMAIL = 'admin@ssbw.local';
 const ADMIN_PASSWORD = 'Admin123!';
@@ -58,7 +58,7 @@ async function register({ firstName, lastName, birthDate, email, password, role 
     role: selectedRole
   });
 
-  const token = sessionStore.createSession(user);
+  const token = signAuthToken(user);
 
   return {
     token,
@@ -77,7 +77,7 @@ async function login({ email, password }) {
     throw new Error('Credenciales invalidas');
   }
 
-  const token = sessionStore.createSession(user);
+  const token = signAuthToken(user);
 
   return {
     token,
@@ -86,12 +86,17 @@ async function login({ email, password }) {
 }
 
 async function me(token) {
-  const session = sessionStore.getSession(token);
-  if (!session) {
+  const payload = verifyAuthToken(token);
+  if (!payload) {
     return null;
   }
 
-  const user = await userRepository.findById(session.userId);
+  const userId = Number(payload.sub);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return null;
+  }
+
+  const user = await userRepository.findById(userId);
   if (!user) {
     return null;
   }
@@ -100,7 +105,7 @@ async function me(token) {
 }
 
 function logout(token) {
-  sessionStore.deleteSession(token);
+  return token;
 }
 
 module.exports = {

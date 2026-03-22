@@ -10,3 +10,4 @@
 {"timestamp":"2026-03-16T20:16:41.356Z","action":"add","product":{"id":35,"title":"NTH88587"},"cartCount":1,"totalAmount":4.99}
 {"timestamp":"2026-03-16T20:20:45.824Z","action":"add","product":{"id":35,"title":"NTH88587"},"cartCount":2,"totalAmount":9.98}
 {"timestamp":"2026-03-16T20:20:47.879Z","action":"add","product":{"id":8,"title":"ORJOFTC01"},"cartCount":3,"totalAmount":43.17}
+{"timestamp":"2026-03-22T11:27:35.411Z","action":"add","product":{"id":8,"title":"orijen fit trim pienso para gatos"},"cartCount":1,"totalAmount":33.19}
