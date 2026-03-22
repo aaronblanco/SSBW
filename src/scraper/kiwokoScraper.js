@@ -21,6 +21,85 @@ function normalizeText(value) {
   return value ? String(value).replace(/\s+/g, ' ').trim() : '';
 }
 
+function isLikelyProductCode(value) {
+  const text = normalizeText(value);
+  if (!text) {
+    return true;
+  }
+
+  const compact = text.replace(/[\s_-]+/g, '');
+  const hasLowercase = /[a-z]/.test(text);
+
+  if (hasLowercase) {
+    return false;
+  }
+
+  return /^[A-Z0-9]{5,}$/.test(compact) && /[A-Z]/.test(compact) && /\d/.test(compact);
+}
+
+function chooseBestTitle(currentTitle, nextTitle) {
+  const current = normalizeText(currentTitle);
+  const next = normalizeText(nextTitle);
+
+  if (!current) {
+    return next;
+  }
+
+  if (!next) {
+    return current;
+  }
+
+  const currentLooksCode = isLikelyProductCode(current);
+  const nextLooksCode = isLikelyProductCode(next);
+
+  if (currentLooksCode && !nextLooksCode) {
+    return next;
+  }
+
+  if (!currentLooksCode && nextLooksCode) {
+    return current;
+  }
+
+  return next.length > current.length ? next : current;
+}
+
+function buildTitleFromProductUrl(url) {
+  if (!url) {
+    return '';
+  }
+
+  try {
+    const pathname = new URL(url).pathname;
+    const segments = pathname.split('/').filter(Boolean);
+
+    for (let index = segments.length - 1; index >= 0; index -= 1) {
+      const rawSegment = segments[index];
+      const withoutExt = rawSegment.replace(/\.html?$/i, '');
+      const withoutCodeSuffix = withoutExt.replace(/_[A-Z0-9]{1,6}$/i, '');
+
+      const candidates = [withoutExt, withoutCodeSuffix]
+        .map((candidate) => decodeURIComponent(candidate).replace(/[-_]+/g, ' ').trim())
+        .filter(Boolean);
+
+      const bestCandidate = candidates.find((candidate) => {
+        if (isLikelyProductCode(candidate)) {
+          return false;
+        }
+
+        return candidate.includes(' ');
+      });
+
+      if (bestCandidate) {
+        return bestCandidate;
+      }
+    }
+  } catch {
+    return '';
+  }
+
+  return '';
+}
+
 async function extractFromPage(page) {
   const items = await page.evaluate(() => {
     const toAbsoluteUrl = (value) => {
@@ -107,9 +186,10 @@ async function extractFromPage(page) {
           '.product-name',
           '.name',
           'h2',
-          'h3',
-          'a[title]'
+          'h3'
         ]);
+
+        const titleFromAttr = readNodeAttr(card, ['a[title]'], 'title');
 
         const urlFromHref = readNodeAttr(card, ['a.ism-product-link[href]', 'a[href]'], 'href');
         const url = toAbsoluteUrl(urlFromHref);
@@ -143,7 +223,7 @@ async function extractFromPage(page) {
           readNodeAttr(card, ['img'], 'src') || readNodeAttr(card, ['img'], 'data-src');
 
         return {
-          title: title || titleFromUrl,
+          title: title || titleFromAttr || titleFromUrl,
           url,
           rawPrice: price,
           image: toAbsoluteUrl(image),
@@ -152,7 +232,7 @@ async function extractFromPage(page) {
       })
       .filter((item) => item.url && item.title && item.rawPrice);
 
-    return [...jsonLdProducts, ...cardItems];
+    return [...cardItems, ...jsonLdProducts];
   });
 
   const now = new Date().toISOString();
@@ -230,9 +310,27 @@ async function scrapeKiwokoCatsProducts({ maxPages = 4, headless = true } = {}) 
       }
 
       const key = item.url || `${item.title}-${item.rawPrice}`;
+      const fallbackTitle = buildTitleFromProductUrl(item.url);
+      const normalizedItem = {
+        ...item,
+        title: chooseBestTitle(item.title, fallbackTitle)
+      };
+
       if (!uniqueMap.has(key)) {
-        uniqueMap.set(key, item);
+        uniqueMap.set(key, normalizedItem);
+        continue;
       }
+
+      const existing = uniqueMap.get(key);
+      uniqueMap.set(key, {
+        ...existing,
+        ...normalizedItem,
+        title: chooseBestTitle(existing.title, normalizedItem.title),
+        image: existing.image || normalizedItem.image,
+        rawPrice: existing.rawPrice || normalizedItem.rawPrice,
+        price: existing.price ?? normalizedItem.price,
+        currency: existing.currency || normalizedItem.currency || 'EUR'
+      });
     }
 
     return Array.from(uniqueMap.values());

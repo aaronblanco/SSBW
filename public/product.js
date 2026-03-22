@@ -66,7 +66,7 @@ async function loadProductDetail() {
     return;
   }
 
-  statusText.textContent = `Cargando producto #${id}...`;
+  statusText.textContent = 'Cargando producto...';
 
   try {
     const response = await fetch(`/api/products/${id}`);
@@ -81,7 +81,7 @@ async function loadProductDetail() {
     }
 
     const product = await response.json();
-    statusText.textContent = `Producto #${product.id} cargado`;
+    statusText.textContent = `Producto cargado: ${product.title}`;
     renderProduct(product);
   } catch (error) {
     statusText.textContent = 'Error al cargar';
