@@ -1,105 +1,128 @@
-# SSBW - Hito 1 (Express + MVC + Scraping + PostgreSQL + Prisma)
+# SSBW
 
-Backend en Express siguiendo MVC, preparado para servir API REST a web y Android (Kotlin).
+Backend en Express (arquitectura MVC) con PostgreSQL + Prisma, scraping con Playwright y frontend estático servido desde `public/`.
 
-## Estructura MVC
+## Puesta en marcha tras clonar el repo
 
-- `src/routes`: definición de endpoints.
-- `src/controllers`: manejo HTTP (request/response).
-- `src/services`: lógica de negocio.
-- `src/repositories`: acceso a datos con Prisma.
-- `src/scraper`: extracción de productos con Playwright.
+### 1. Requisitos previos
 
-## Stack de persistencia
+- Node.js 20 o superior
+- npm (incluido con Node)
+- Docker Desktop (o Docker Engine + Docker Compose)
 
-- PostgreSQL en Docker Compose (`docker-compose.yml`).
-- ORM Prisma (`prisma/schema.prisma`).
+Comprueba versiones:
 
-## Requisitos
+```bash
+node -v
+npm -v
+docker -v
+docker compose version
+```
 
-- Node.js 20+
-- Docker Desktop (o motor Docker compatible)
+### 2. Clonar el repositorio
 
-## Setup rápido
+```bash
+git clone <URL_DEL_REPO>
+cd SSBW
+```
 
-1. Instalar dependencias:
+### 3. Instalar dependencias del proyecto
 
 ```bash
 npm install
 ```
 
-2. Copiar variables de entorno (en Windows PowerShell):
+### 4. Crear archivo `.env`
 
-```bash
-Copy-Item .env.example .env
+Este proyecto necesita al menos `DATABASE_URL` y `JWT_SECRET`.
+
+Crea un archivo `.env` en la raíz con este contenido:
+
+```env
+PORT=3000
+DATABASE_URL="postgresql://ssbw:ssbw@localhost:5433/ssbw?schema=public"
+JWT_SECRET="cambia_este_secreto_en_produccion"
+SCRAPE_MAX_PAGES=4
+SCRAPE_HEADLESS=true
 ```
 
-3. Levantar PostgreSQL:
+### 5. Levantar PostgreSQL con Docker
 
 ```bash
 docker compose up -d postgres
 ```
 
-Si ya tienes un PostgreSQL local en el puerto `5432`, este proyecto usa `5433` para el contenedor.
+El contenedor expone PostgreSQL en `localhost:5433` para evitar conflicto con instalaciones locales en `5432`.
 
-4. Aplicar el esquema Prisma en la BD:
+### 6. Crear/actualizar tablas con Prisma
 
 ```bash
 npm run db:push
 ```
 
-5. Iniciar backend:
+### 7. Arrancar la aplicación
 
 ```bash
 npm run dev
 ```
 
-## Endpoints
+Aplicación disponible en:
 
-- `GET /` página de búsquedas (Bootstrap).
+- `http://localhost:3000` (frontend)
+- `http://localhost:3000/health` (healthcheck)
+
+## Usuario administrador por defecto
+
+Al iniciar, si no existe, se crea automáticamente:
+
+- Email: `admin@ssbw.local`
+- Password: `Admin123!`
+
+## Scripts útiles
+
+- `npm run dev`: arranca en modo desarrollo con nodemon
+- `npm run start`: arranca en modo normal
+- `npm run db:push`: sincroniza esquema Prisma con la base de datos
+- `npm run prisma:studio`: abre Prisma Studio
+- `npm run scrape`: ejecuta scraping y genera `data/kiwoko-products.json`
+
+## Endpoints principales
+
 - `GET /health`
-- `GET /api/products` lista productos guardados en PostgreSQL.
-	- Query params: `search`, `take`, `skip`
-- `POST /api/products/scrape/kiwoko` scrapea y guarda (upsert por URL).
-	- Query/body opcionales: `maxPages`, `headless`
-- `GET /api/products/scrape/kiwoko` igual que el anterior (útil para pruebas rápidas).
-- Compatibilidad antigua: `GET /api/scrape/kiwoko`
-
-### Auth (web + Android)
-
+- `GET /api/products` (filtros: `search`, `take`, `skip`)
+- `GET /api/products/:id`
+- `POST /api/products/scrape/kiwoko`
+- `GET /api/products/scrape/kiwoko`
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `GET /api/auth/me`
 - `POST /api/auth/logout`
 
-El backend emite un JWT y soporta dos modos a la vez:
+## Flujo rápido con Makefile (opcional)
 
-- Web: cookie `httpOnly` (`access_token`).
-- Android/API clients: header `Authorization: Bearer <token>`.
-
-Variable recomendada en `.env`:
-
-```env
-JWT_SECRET=pon_aqui_un_secreto_largo
-```
-
-## Protocolos
-
-- HTTP: API REST + página de búsqueda Bootstrap.
-- WebSocket: `GET /ws` para eventos en vivo (por ejemplo `scrape-completed`).
-
-## Script CLI
+Si usas `make`, puedes ejecutar:
 
 ```bash
-npm run scrape
+make install
+make db-up
+make db-push
+make dev
 ```
 
-Este comando ahora:
+## Solución de problemas rápida
 
-- scrapea productos,
-- los guarda en PostgreSQL con Prisma,
-- y además genera `data/kiwoko-products.json`.
+- Si falla la conexión a BD, revisa que `docker compose ps` muestre `ssbw-postgres` en estado `running`.
+- Si `db:push` falla, verifica `DATABASE_URL` en `.env`.
+- Si Playwright da problemas en primer uso, vuelve a ejecutar `npm install` para asegurar binarios.
 
-## Nota
+## Estructura del proyecto
 
-Respeta siempre los términos de uso y el `robots.txt` de la web objetivo.
+- `src/routes`: definición de endpoints
+- `src/controllers`: manejo HTTP
+- `src/services`: lógica de negocio
+- `src/repositories`: acceso a datos con Prisma
+- `src/scraper`: scraping de productos
+
+## Nota legal
+
+Respeta siempre términos de uso y `robots.txt` de la web objetivo al ejecutar scraping.
