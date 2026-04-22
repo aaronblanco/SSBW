@@ -31,15 +31,22 @@ async function scrapeAndSaveKiwokoProducts(req, res) {
 }
 
 async function listProducts(req, res) {
-  const take = Number(req.query.take || 20);
-  const skip = Number(req.query.skip || 0);
+  const hasDesdeHasta = req.query.desde != null || req.query.hasta != null;
+  const desde = Number(req.query.desde || 1);
+  const hasta = Number(req.query.hasta || 20);
+  const take = hasDesdeHasta ? Math.max(1, hasta - desde + 1) : Number(req.query.take || 20);
+  const skip = hasDesdeHasta ? Math.max(0, desde - 1) : Number(req.query.skip || 0);
   const search = String(req.query.search || '').trim();
+  const sortBy = String(req.query.sortBy || req.query.ordenacionCampo || req.query.orderBy || 'scrapedAt').trim();
+  const sortDir = String(req.query.sortDir || req.query.ordenacion || req.query.order || 'desc').trim();
 
   try {
     const result = await productService.listProducts({
       take,
       skip,
-      search
+      search,
+      sortBy,
+      sortDir
     });
 
     res.json(result);

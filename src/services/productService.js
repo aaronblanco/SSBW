@@ -42,15 +42,26 @@ async function scrapeAndSaveKiwokoProducts({ maxPages = 4, headless = true } = {
   };
 }
 
-async function listProducts({ take = 20, skip = 0, search = '' } = {}) {
+function normalizeSortDir(value) {
+  const input = String(value || '').trim().toLowerCase();
+  if (input === 'asc' || input === 'ascendente' || input === 'ascending') {
+    return 'asc';
+  }
+  return 'desc';
+}
+
+async function listProducts({ take = 20, skip = 0, search = '', sortBy = 'scrapedAt', sortDir = 'desc' } = {}) {
   const safeTake = Math.max(1, Math.min(take, 100));
   const safeSkip = Math.max(0, skip);
+  const safeSortDir = normalizeSortDir(sortDir);
 
   const [items, total] = await Promise.all([
     productRepository.findMany({
       take: safeTake,
       skip: safeSkip,
-      search
+      search,
+      sortBy,
+      sortDir: safeSortDir
     }),
     productRepository.count({ search })
   ]);
@@ -59,6 +70,8 @@ async function listProducts({ take = 20, skip = 0, search = '' } = {}) {
     total,
     take: safeTake,
     skip: safeSkip,
+    sortBy,
+    sortDir: safeSortDir,
     items: items.map(normalizeProductPrice)
   };
 }

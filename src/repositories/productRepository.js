@@ -13,6 +13,13 @@ function buildSearchWhere(search) {
   };
 }
 
+function resolveOrderBy(sortBy = 'scrapedAt', sortDir = 'desc') {
+  const allowedFields = new Set(['id', 'title', 'price', 'source', 'scrapedAt', 'createdAt', 'updatedAt']);
+  const safeField = allowedFields.has(sortBy) ? sortBy : 'scrapedAt';
+  const safeDir = sortDir === 'asc' ? 'asc' : 'desc';
+  return { [safeField]: safeDir };
+}
+
 async function upsertMany(products) {
   if (!Array.isArray(products) || products.length === 0) {
     return 0;
@@ -54,12 +61,13 @@ async function upsertMany(products) {
   return savedCount;
 }
 
-async function findMany({ take = 20, skip = 0, search = '' } = {}) {
+async function findMany({ take = 20, skip = 0, search = '', sortBy = 'scrapedAt', sortDir = 'desc' } = {}) {
   const where = buildSearchWhere(search);
+  const orderBy = resolveOrderBy(sortBy, sortDir);
 
   return prisma.product.findMany({
     where,
-    orderBy: { scrapedAt: 'desc' },
+    orderBy,
     take,
     skip
   });

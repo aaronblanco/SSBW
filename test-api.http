@@ -1,0 +1,66 @@
+@baseUrl = http://localhost:3000
+@adminEmail = admin@ssbw.local
+@adminPassword = Admin123!
+
+### Health
+GET {{baseUrl}}/health
+
+### Login admin
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### Listado productos (paginacion take/skip + ordenacion)
+GET {{baseUrl}}/api/products?take=5&skip=0&sortBy=price&sortDir=asc
+
+### Listado productos (compatibilidad desde/hasta + ordenacion en castellano)
+GET {{baseUrl}}/api/products?desde=1&hasta=10&ordenacionCampo=title&ordenacion=ascendente
+
+### Detalle producto por id
+GET {{baseUrl}}/api/products/1
+
+### Crear producto (admin)
+POST {{baseUrl}}/api/products
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "source": "manual",
+  "title": "Producto de prueba REST Client",
+  "price": 19.99,
+  "rawPrice": "19.99 EUR",
+  "currency": "EUR",
+  "url": "https://example.com/producto-prueba-rest-client",
+  "image": "https://placehold.co/600x400"
+}
+
+### Actualizar producto (admin)
+PUT {{baseUrl}}/api/products/1
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Producto actualizado desde REST Client",
+  "price": 17.5,
+  "rawPrice": "17.50 EUR"
+}
+
+### Eliminar producto (admin)
+DELETE {{baseUrl}}/api/products/1
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### Ejecutar scraping Kiwoko
+POST {{baseUrl}}/api/products/scrape/kiwoko?maxPages=2&headless=true
+
+### Me (usuario autenticado)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### Logout
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{loginAdmin.response.body.token}}

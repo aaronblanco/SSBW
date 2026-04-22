@@ -89,7 +89,10 @@ Al iniciar, si no existe, se crea automáticamente:
 ## Endpoints principales
 
 - `GET /health`
-- `GET /api/products` (filtros: `search`, `take`, `skip`)
+- `GET /api/products` (filtros: `search`, `take`, `skip`, `sortBy`, `sortDir`)
+  - Alias de paginacion compatibles con la tarea: `desde`, `hasta`
+  - `sortBy` permitidos: `id`, `title`, `price`, `source`, `scrapedAt`, `createdAt`, `updatedAt`
+  - `sortDir`: `asc`/`desc` (tambien acepta `ascendente`/`descendente`)
 - `GET /api/products/:id`
 - `POST /api/products/scrape/kiwoko`
 - `GET /api/products/scrape/kiwoko`
@@ -97,6 +100,10 @@ Al iniciar, si no existe, se crea automáticamente:
 - `POST /api/auth/login`
 - `GET /api/auth/me`
 - `POST /api/auth/logout`
+
+## Pruebas API con REST Client
+
+Se incluye el archivo `test-api.http` en la raiz para ejecutar pruebas desde la extension REST Client de VS Code.
 
 ## Flujo rápido con Makefile (opcional)
 
