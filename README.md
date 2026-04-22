@@ -100,6 +100,10 @@ Al iniciar, si no existe, se crea automáticamente:
 - `POST /api/auth/login`
 - `GET /api/auth/me`
 - `POST /api/auth/logout`
+- `GET /api/cart` (carrito del usuario autenticado)
+- `POST /api/cart` (anadir producto al carrito)
+- `DELETE /api/cart/:productId` (quitar una unidad)
+- `DELETE /api/cart` (vaciar carrito)
 
 ## Pruebas API con REST Client
 

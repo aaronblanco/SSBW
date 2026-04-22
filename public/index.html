@@ -45,6 +45,15 @@
       <div class="container d-flex justify-content-between align-items-center">
         <span class="navbar-brand mb-0 h1">SSBW - MiauMarket</span>
         <div class="d-flex gap-2 align-items-center">
+          <button
+            class="btn btn-sm btn-outline-light"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#cartOffcanvas"
+            aria-controls="cartOffcanvas"
+          >
+            Carrito
+          </button>
           <span id="authBadge" class="badge text-bg-secondary">No autenticado</span>
           <a class="btn btn-sm btn-outline-light" href="/auth.html">Acceso</a>
           <a id="profileLink" class="btn btn-sm btn-outline-light d-none" href="/profile.html">Perfil</a>
@@ -87,21 +96,6 @@
 
       <section id="results" class="row g-3"></section>
 
-      <section class="card shadow-sm border-0 mt-4">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 mb-0">Carrito</h2>
-            <span class="badge text-bg-primary" id="cartCountBadge">0 productos</span>
-          </div>
-          <div id="cartItems" class="mb-3 text-muted small">El carrito esta vacio.</div>
-          <div class="d-flex flex-wrap gap-2 align-items-center">
-            <button id="checkoutBtn" class="btn btn-success btn-sm" type="button">Finalizar compra</button>
-            <button id="clearCartBtn" class="btn btn-outline-danger btn-sm" type="button">Vaciar carrito</button>
-            <span id="cartTotalText" class="text-muted">Total estimado: 0.00 EUR</span>
-          </div>
-        </div>
-      </section>
-
       <section class="d-flex justify-content-between align-items-center mt-4 ssbw-pager">
         <button id="prevBtn" class="btn btn-outline-secondary">Anterior</button>
         <span class="text-muted" id="pageInfo">Página 1</span>
@@ -109,7 +103,36 @@
       </section>
     </main>
 
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
+      <div class="offcanvas-header">
+        <h2 class="offcanvas-title h5 mb-0" id="cartOffcanvasLabel">Carrito</h2>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge text-bg-primary" id="cartCountBadge">0 productos</span>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="offcanvas-body d-flex flex-column gap-3">
+        <div id="cartItems" class="text-muted small">El carrito esta vacio.</div>
+        <div class="d-flex flex-wrap gap-2 align-items-center mt-auto">
+          <button id="checkoutBtn" class="btn btn-success btn-sm" type="button">Finalizar compra</button>
+          <button id="clearCartBtn" class="btn btn-outline-danger btn-sm" type="button">Vaciar carrito</button>
+          <span id="cartTotalText" class="text-muted">Total estimado: 0.00 EUR</span>
+        </div>
+      </div>
+    </div>
+
+    <template id="cartItemTemplate">
+      <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+        <div>
+          <div class="fw-semibold js-cart-title"></div>
+          <div class="small text-muted js-cart-meta"></div>
+        </div>
+        <button class="btn btn-sm btn-outline-danger js-remove-cart" type="button">Quitar</button>
+      </div>
+    </template>
+
     <script src="/auth-client.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/cart.js"></script>
     <script src="/app.js"></script>
   </body>

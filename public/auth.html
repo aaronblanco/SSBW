@@ -30,34 +30,85 @@
             <div class="card-body">
               <form id="loginForm" class="row g-2">
                 <div class="col-12">
-                  <input class="form-control" type="email" name="email" placeholder="Correo electronico" required />
+                  <label class="form-label mb-1" for="loginEmail">Correo electronico</label>
+                  <input
+                    id="loginEmail"
+                    class="form-control"
+                    type="email"
+                    name="email"
+                    placeholder="ejemplo@correo.com"
+                    autocomplete="email"
+                    inputmode="email"
+                    autofocus
+                    required
+                  />
                 </div>
                 <div class="col-12">
-                  <input class="form-control" type="password" name="password" placeholder="Contraseña" required />
+                  <label class="form-label mb-1" for="loginPassword">Contrasena</label>
+                  <div class="input-group">
+                    <input
+                      id="loginPassword"
+                      class="form-control"
+                      type="password"
+                      name="password"
+                      placeholder="Tu contrasena"
+                      autocomplete="current-password"
+                      required
+                    />
+                    <button class="btn btn-outline-secondary js-toggle-password" data-target="loginPassword" type="button">Ver</button>
+                  </div>
+                  <div id="loginPasswordHint" class="form-text text-danger d-none"></div>
                 </div>
                 <div class="col-12 d-grid">
-                  <button class="btn btn-success" type="submit">Entrar</button>
+                  <button class="btn btn-success" type="submit">Entrar a mi cuenta</button>
                 </div>
               </form>
 
               <form id="registerForm" class="row g-2 d-none">
                 <div class="col-md-6">
-                  <input class="form-control" name="firstName" placeholder="Nombre" required />
+                  <label class="form-label mb-1" for="registerFirstName">Nombre</label>
+                  <input id="registerFirstName" class="form-control" name="firstName" placeholder="Ana" autocomplete="given-name" required />
                 </div>
                 <div class="col-md-6">
-                  <input class="form-control" name="lastName" placeholder="Apellidos" required />
+                  <label class="form-label mb-1" for="registerLastName">Apellidos</label>
+                  <input id="registerLastName" class="form-control" name="lastName" placeholder="Garcia" autocomplete="family-name" required />
                 </div>
                 <div class="col-12">
-                  <input class="form-control" type="date" name="birthDate" required />
+                  <label class="form-label mb-1" for="registerBirthDate">Fecha de nacimiento</label>
+                  <input id="registerBirthDate" class="form-control" type="date" name="birthDate" title="Fecha de nacimiento" required />
                 </div>
                 <div class="col-12">
-                  <input class="form-control" type="email" name="email" placeholder="Correo electronico" required />
+                  <label class="form-label mb-1" for="registerEmail">Correo electronico</label>
+                  <input
+                    id="registerEmail"
+                    class="form-control"
+                    type="email"
+                    name="email"
+                    placeholder="ana@correo.com"
+                    autocomplete="email"
+                    inputmode="email"
+                    required
+                  />
                 </div>
                 <div class="col-12">
-                  <input class="form-control" type="password" name="password" placeholder="Contraseña" required />
+                  <label class="form-label mb-1" for="registerPassword">Contrasena</label>
+                  <div class="input-group">
+                    <input
+                      id="registerPassword"
+                      class="form-control"
+                      type="password"
+                      name="password"
+                      placeholder="Minimo 8 caracteres"
+                      autocomplete="new-password"
+                      required
+                    />
+                    <button class="btn btn-outline-secondary js-toggle-password" data-target="registerPassword" type="button">Ver</button>
+                  </div>
+                  <div class="form-text">Debe incluir al menos 8 caracteres, una letra y un numero.</div>
+                  <div id="registerPasswordHint" class="form-text text-danger d-none"></div>
                 </div>
                 <div class="col-12 d-grid">
-                  <button class="btn btn-primary" type="submit">Crear cuenta</button>
+                  <button class="btn btn-primary" type="submit">Crear cuenta y continuar</button>
                 </div>
               </form>
 

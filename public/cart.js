@@ -1,80 +1,91 @@
-const CART_KEY = 'ssbw-cart';
+let cartState = {
+  items: [],
+  count: 0,
+  totalAmount: 0
+};
 
-function readCart() {
-  try {
-    const raw = localStorage.getItem(CART_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
+function authHeaders() {
+  if (!window.SSBWAuth) {
+    return {};
   }
+
+  return window.SSBWAuth.authHeaders();
 }
 
-function writeCart(items) {
-  localStorage.setItem(CART_KEY, JSON.stringify(items));
+async function requestCart(path = '', options = {}) {
+  const response = await fetch(`/api/cart${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+      ...(options.headers || {})
+    },
+    credentials: 'include'
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || 'No se pudo operar con el carrito');
+  }
+
+  cartState = {
+    items: Array.isArray(data.items) ? data.items : [],
+    count: Number(data.count) || 0,
+    totalAmount: Number(data.totalAmount) || 0
+  };
+
+  return cartState;
 }
 
-function addToCart(product) {
-  const cart = readCart();
-  const index = cart.findIndex((item) => item.id === product.id);
-  const price = Number.isFinite(product.price) ? product.price : 0;
+async function loadCart() {
+  return requestCart();
+}
 
-  if (index >= 0) {
-    cart[index].quantity += 1;
-  } else {
-    cart.push({
+async function addToCart(product) {
+  return requestCart('', {
+    method: 'POST',
+    body: JSON.stringify({
       id: product.id,
       title: product.title,
-      price: price,
-      image: product.image || null,
-      url: product.url || null,
-      quantity: 1
-    });
-  }
-
-  writeCart(cart);
-  return cart;
+      price: product.price,
+      image: product.image,
+      url: product.url
+    })
+  });
 }
 
-function removeFromCart(productId) {
-  const cart = readCart();
-  const index = cart.findIndex((item) => item.id === Number(productId));
-
-  if (index < 0) {
-    return cart;
-  }
-
-  if (cart[index].quantity > 1) {
-    cart[index].quantity -= 1;
-  } else {
-    cart.splice(index, 1);
-  }
-
-  writeCart(cart);
-  return cart;
+async function removeFromCart(productId) {
+  return requestCart(`/${Number(productId)}`, {
+    method: 'DELETE'
+  });
 }
 
-function clearCart() {
-  writeCart([]);
-  return [];
+async function clearCart() {
+  return requestCart('', {
+    method: 'DELETE'
+  });
+}
+
+function readCart() {
+  return [...cartState.items];
 }
 
 function cartCount() {
-  return readCart().reduce((sum, item) => sum + item.quantity, 0);
-}
-
-function getItemUnitPrice(item) {
-  if (Number.isFinite(item.price)) {
-    return item.price;
-  }
-  if (Number.isFinite(item.numericPrice)) {
-    return item.numericPrice;
-  }
-  return 0;
+  return Number(cartState.count) || 0;
 }
 
 function cartTotalAmount() {
-  return readCart().reduce((sum, item) => sum + getItemUnitPrice(item) * item.quantity, 0);
+  return Number(cartState.totalAmount) || 0;
+}
+
+function resetCartState() {
+  cartState = {
+    items: [],
+    count: 0,
+    totalAmount: 0
+  };
+  return cartState;
 }
 
 async function logCartEvent(payload) {
@@ -90,11 +101,12 @@ async function logCartEvent(payload) {
 }
 
 window.SSBWCart = {
+  loadCart,
   readCart,
-  writeCart,
   addToCart,
   removeFromCart,
   clearCart,
+  resetCartState,
   cartCount,
   cartTotalAmount,
   logCartEvent

@@ -21,6 +21,7 @@ const cartItems = document.getElementById('cartItems');
 const cartTotalText = document.getElementById('cartTotalText');
 const clearCartBtn = document.getElementById('clearCartBtn');
 const checkoutBtn = document.getElementById('checkoutBtn');
+const cartItemTemplate = document.getElementById('cartItemTemplate');
 const authBadge = document.getElementById('authBadge');
 const profileLink = document.getElementById('profileLink');
 const adminLink = document.getElementById('adminLink');
@@ -47,27 +48,60 @@ function renderCart() {
   }
 
   const items = window.SSBWCart.readCart();
+  cartItems.innerHTML = '';
 
   if (!items.length) {
-    cartItems.innerHTML = 'El carrito esta vacio.';
+    cartItems.textContent = 'El carrito esta vacio.';
     cartTotalText.textContent = 'Total estimado: 0.00 EUR';
     updateCartBadge();
     return;
   }
 
-  cartItems.innerHTML = items
-    .map(
-      (item) => `
-        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-          <div>
-            <div class="fw-semibold">${item.title}</div>
-            <div class="small text-muted">${formatPrice(item.price)} · Cantidad: ${item.quantity}</div>
-          </div>
-          <button class="btn btn-sm btn-outline-danger js-remove-cart" data-id="${item.id}" type="button">Quitar</button>
-        </div>
-      `
-    )
-    .join('');
+  const fallbackTemplate = (item) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'd-flex justify-content-between align-items-center border-bottom py-2';
+    wrapper.innerHTML = `
+      <div>
+        <div class="fw-semibold"></div>
+        <div class="small text-muted"></div>
+      </div>
+      <button class="btn btn-sm btn-outline-danger js-remove-cart" type="button">Quitar</button>
+    `;
+
+    wrapper.querySelector('.fw-semibold').textContent = item.title;
+    wrapper.querySelector('.text-muted').textContent = `${formatPrice(item.price)} · Cantidad: ${item.quantity}`;
+    wrapper.querySelector('.js-remove-cart').dataset.id = String(item.id);
+    return wrapper;
+  };
+
+  for (const item of items) {
+    const fragment = cartItemTemplate?.content
+      ? cartItemTemplate.content.cloneNode(true)
+      : null;
+
+    if (!fragment) {
+      cartItems.appendChild(fallbackTemplate(item));
+      continue;
+    }
+
+    const titleNode = fragment.querySelector('.js-cart-title');
+    const metaNode = fragment.querySelector('.js-cart-meta');
+    const removeBtn = fragment.querySelector('.js-remove-cart');
+
+    if (titleNode) {
+      titleNode.textContent = item.title;
+    }
+
+    if (metaNode) {
+      metaNode.textContent = `${formatPrice(item.price)} · Cantidad: ${item.quantity}`;
+    }
+
+    if (removeBtn) {
+      removeBtn.dataset.id = String(item.id);
+    }
+
+    cartItems.appendChild(fragment);
+  }
 
   cartTotalText.textContent = `Total estimado: ${window.SSBWCart.cartTotalAmount().toFixed(2)} EUR`;
   updateCartBadge();
@@ -83,6 +117,8 @@ async function syncAuthUi() {
     state.currentUser = user;
 
     if (!user) {
+      window.SSBWCart?.resetCartState();
+      renderCart();
       authBadge.textContent = 'No autenticado';
       authBadge.className = 'badge text-bg-secondary';
       profileLink.classList.add('d-none');
@@ -259,14 +295,14 @@ results.addEventListener('click', async (event) => {
     }
 
     const product = await response.json();
-    const cart = window.SSBWCart.addToCart(product);
+    const cart = await window.SSBWCart.addToCart(product);
     renderCart();
     setStatus(`Anadido al carrito: ${product.title}`);
 
     await window.SSBWCart.logCartEvent({
       action: 'add',
       product: { id: product.id, title: product.title },
-      cartCount: cart.reduce((sum, item) => sum + item.quantity, 0),
+      cartCount: cart.count,
       totalAmount: window.SSBWCart.cartTotalAmount()
     });
   } catch (error) {
@@ -283,21 +319,29 @@ cartItems.addEventListener('click', async (event) => {
   const productId = Number(removeBtn.dataset.id);
   const previous = window.SSBWCart.readCart();
   const product = previous.find((item) => item.id === productId);
-  const cart = window.SSBWCart.removeFromCart(productId);
-  renderCart();
+  try {
+    const cart = await window.SSBWCart.removeFromCart(productId);
+    renderCart();
 
-  await window.SSBWCart.logCartEvent({
-    action: 'remove',
-    product: product ? { id: product.id, title: product.title } : null,
-    cartCount: cart.reduce((sum, item) => sum + item.quantity, 0),
-    totalAmount: window.SSBWCart.cartTotalAmount()
-  });
+    await window.SSBWCart.logCartEvent({
+      action: 'remove',
+      product: product ? { id: product.id, title: product.title } : null,
+      cartCount: cart.count,
+      totalAmount: window.SSBWCart.cartTotalAmount()
+    });
+  } catch (error) {
+    setStatus(`Error al quitar del carrito: ${error.message}`);
+  }
 });
 
 clearCartBtn.addEventListener('click', async () => {
-  window.SSBWCart.clearCart();
-  renderCart();
-  setStatus('Carrito vaciado.');
+  try {
+    await window.SSBWCart.clearCart();
+    renderCart();
+    setStatus('Carrito vaciado.');
+  } catch (error) {
+    setStatus(`Error al vaciar carrito: ${error.message}`);
+  }
 });
 
 checkoutBtn.addEventListener('click', async () => {
@@ -317,19 +361,33 @@ checkoutBtn.addEventListener('click', async () => {
     totalAmount: total
   });
 
-  window.SSBWCart.clearCart();
-  renderCart();
-  setStatus(`Pedido simulado completado (${itemCount} items).`);
+  try {
+    await window.SSBWCart.clearCart();
+    renderCart();
+    setStatus(`Pedido simulado completado (${itemCount} items).`);
+  } catch (error) {
+    setStatus(`Pedido simulado, pero no se pudo vaciar carrito: ${error.message}`);
+  }
 });
 
 logoutBtn.addEventListener('click', async () => {
   await window.SSBWAuth.logout();
+  window.SSBWCart?.resetCartState();
+  renderCart();
   await syncAuthUi();
   setStatus('Sesion cerrada.');
 });
 
 Promise.all([syncAuthUi(), loadProducts()])
-  .then(() => {
+  .then(async () => {
+    if (state.currentUser) {
+      try {
+        await window.SSBWCart.loadCart();
+      } catch {
+        setStatus('Inicia sesion para usar el carrito.');
+      }
+    }
+
     renderCart();
     initWebSocket();
   })

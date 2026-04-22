@@ -61,6 +61,31 @@ POST {{baseUrl}}/api/products/scrape/kiwoko?maxPages=2&headless=true
 GET {{baseUrl}}/api/auth/me
 Authorization: Bearer {{loginAdmin.response.body.token}}
 
+### Carrito: ver
+GET {{baseUrl}}/api/cart
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### Carrito: anadir item
+POST {{baseUrl}}/api/cart
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "id": 1,
+  "title": "Producto 1",
+  "price": 12.99,
+  "image": "https://placehold.co/300x200",
+  "url": "https://example.com/producto-1"
+}
+
+### Carrito: quitar una unidad
+DELETE {{baseUrl}}/api/cart/1
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### Carrito: vaciar
+DELETE {{baseUrl}}/api/cart
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
 ### Logout
 POST {{baseUrl}}/api/auth/logout
 Authorization: Bearer {{loginAdmin.response.body.token}}

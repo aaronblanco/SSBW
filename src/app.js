@@ -7,6 +7,7 @@ const productController = require('./controllers/productController');
 const loggerRoutes = require('./routes/loggerRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 const authService = require('./services/authService');
 
 const app = express();
@@ -30,6 +31,7 @@ authService.ensureDefaultAdmin().catch((error) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
 app.use('/api/logs', loggerRoutes);
 app.use('/api/orders', orderRoutes);
 app.get('/api/scrape/kiwoko', productController.scrapeAndSaveKiwokoProducts);
