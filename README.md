@@ -70,7 +70,17 @@ Aplicación disponible en:
 
 - `http://localhost:3000` (frontend)
 - `http://localhost:3000/health` (healthcheck)
+## Servidor vite
 
+Ubicado en la carpeta web.
+```bash
+cd web
+npm run dev
+```
+Aplicación disponible en:
+
+- `http://localhost:5173` (frontend)
+  
 ## Usuario administrador por defecto
 
 Al iniciar, si no existe, se crea automáticamente:
