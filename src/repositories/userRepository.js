@@ -21,8 +21,16 @@ async function createUser({ firstName, lastName, birthDate, email, passwordHash,
   });
 }
 
+async function updatePasswordHash(id, passwordHash) {
+  return prisma.user.update({
+    where: { id },
+    data: { passwordHash }
+  });
+}
+
 module.exports = {
   findByEmail,
   findById,
-  createUser
+  createUser,
+  updatePasswordHash
 };

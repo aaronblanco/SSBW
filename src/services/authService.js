@@ -1,12 +1,41 @@
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const userRepository = require('../repositories/userRepository');
 const { signAuthToken, verifyAuthToken } = require('../auth/jwtService');
 
-const ADMIN_EMAIL = 'admin@ssbw.local';
-const ADMIN_PASSWORD = 'Admin123!';
+const ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL || 'admin@ssbw.local';
+const ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin123!';
+const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
 
-function hashPassword(plainText) {
+function hashPasswordLegacy(plainText) {
   return crypto.createHash('sha256').update(String(plainText)).digest('hex');
+}
+
+function isBcryptHash(value) {
+  return /^\$2[aby]\$\d{2}\$/.test(String(value || ''));
+}
+
+async function hashPassword(plainText) {
+  return bcrypt.hash(String(plainText), BCRYPT_ROUNDS);
+}
+
+async function verifyPasswordAndMigrate(user, plainText) {
+  if (!user || !plainText) {
+    return false;
+  }
+
+  if (isBcryptHash(user.passwordHash)) {
+    return bcrypt.compare(String(plainText), user.passwordHash);
+  }
+
+  const matchesLegacy = user.passwordHash === hashPasswordLegacy(plainText);
+  if (!matchesLegacy) {
+    return false;
+  }
+
+  const upgradedHash = await hashPassword(plainText);
+  await userRepository.updatePasswordHash(user.id, upgradedHash);
+  return true;
 }
 
 function sanitizeUser(user) {
@@ -21,6 +50,10 @@ function sanitizeUser(user) {
 }
 
 async function ensureDefaultAdmin() {
+  if (String(process.env.DISABLE_DEFAULT_ADMIN || '').trim() === 'true') {
+    return;
+  }
+
   const existing = await userRepository.findByEmail(ADMIN_EMAIL);
   if (existing) {
     return;
@@ -31,7 +64,7 @@ async function ensureDefaultAdmin() {
     lastName: 'SSBW',
     birthDate: '1990-01-01',
     email: ADMIN_EMAIL,
-    passwordHash: hashPassword(ADMIN_PASSWORD),
+    passwordHash: await hashPassword(ADMIN_PASSWORD),
     role: 'admin'
   });
 }
@@ -54,7 +87,7 @@ async function register({ firstName, lastName, birthDate, email, password, role 
     lastName: String(lastName).trim(),
     birthDate,
     email: normalizedEmail,
-    passwordHash: hashPassword(password),
+    passwordHash: await hashPassword(password),
     role: selectedRole
   });
 
@@ -73,7 +106,8 @@ async function login({ email, password }) {
   }
 
   const user = await userRepository.findByEmail(normalizedEmail);
-  if (!user || user.passwordHash !== hashPassword(password)) {
+  const isValid = await verifyPasswordAndMigrate(user, password);
+  if (!isValid) {
     throw new Error('Credenciales invalidas');
   }
 

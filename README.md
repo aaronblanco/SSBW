@@ -1,6 +1,8 @@
 # SSBW
 
-Backend en Express (arquitectura MVC) con PostgreSQL + Prisma, scraping con Playwright y frontend estático servido desde `public/`.
+Backend en Express (arquitectura MVC) con PostgreSQL + Prisma, scraping con Playwright y frontend integrado.
+
+En produccion, el contenedor compila y sirve la app React de `web/` (salida `web/dist`). En desarrollo local, si no existe build de React, se mantiene el fallback de `public/`.
 
 ## Puesta en marcha tras clonar el repo
 
@@ -70,13 +72,16 @@ Aplicación disponible en:
 
 - `http://localhost:3000` (frontend)
 - `http://localhost:3000/health` (healthcheck)
+
 ## Servidor vite
 
 Ubicado en la carpeta web.
+
 ```bash
 cd web
 npm run dev
 ```
+
 Aplicación disponible en:
 
 - `http://localhost:5173` (frontend)
@@ -85,16 +90,92 @@ Aplicación disponible en:
 
 Al iniciar, si no existe, se crea automáticamente:
 
-- Email: `admin@ssbw.local`
-- Password: `Admin123!`
+- Email: `DEFAULT_ADMIN_EMAIL` (por defecto `admin@ssbw.local`)
+- Password: `DEFAULT_ADMIN_PASSWORD` (por defecto `Admin123!`)
+
+En producción, **cambia siempre** `DEFAULT_ADMIN_PASSWORD` y `JWT_SECRET` mediante variables de entorno.
+
+## Despliegue en DigitalOcean (App Platform)
+
+El proyecto es viable para subir a DigitalOcean. Incluye backend Express, Prisma (PostgreSQL) y frontend React servido por el propio backend.
+
+### 1. Crear base de datos administrada
+
+- Crea un clúster de **Managed PostgreSQL** en DigitalOcean.
+- Obtén la cadena de conexión y úsala en `DATABASE_URL` con SSL, por ejemplo:
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:25060/ssbw?sslmode=require&schema=public"
+```
+
+### 2. Configurar app como servicio web desde Dockerfile
+
+- En App Platform, elige el repositorio y selecciona despliegue por `Dockerfile`.
+- El contenedor expone `PORT=3000`.
+- En "Run Command" usa: `npm run start:cloud`.
+- Define variables de entorno mínimas:
+  - `NODE_ENV=production`
+  - `PORT=3000`
+  - `DATABASE_URL=...`
+  - `JWT_SECRET=...`
+  - `DEFAULT_ADMIN_EMAIL=...`
+  - `DEFAULT_ADMIN_PASSWORD=...`
+  - `CORS_ORIGINS=https://TU-DOMINIO` (si frontend y API van en dominios distintos)
+
+### 3. Inicializar esquema Prisma en producción
+
+Tras el primer deploy, ejecuta una vez:
+
+```bash
+npx prisma db push
+```
+
+Si usas `npm run start:cloud`, este paso se ejecuta automaticamente en cada arranque.
+
+### 4. Verificación rápida post-deploy
+
+- `GET /health` debe responder `{ "ok": true, ... }`.
+- Comprueba login y acceso a `GET /api/auth/me`.
+- Ejecuta un scraping corto (`maxPages=1`) para validar Playwright en runtime.
+
+## Limitaciones actuales para cloud
+
+- El carrito ya persiste en PostgreSQL (tabla `CartItem`) y no se pierde al reiniciar la app.
+- Si en el futuro quieres sesiones revocables compartidas entre replicas, puedes complementar con Redis para invalidacion centralizada de tokens.
 
 ## Scripts útiles
 
 - `npm run dev`: arranca en modo desarrollo con nodemon
 - `npm run start`: arranca en modo normal
+- `npm run start:cloud`: ejecuta `db:push` y luego arranca servidor (util en App Platform)
 - `npm run db:push`: sincroniza esquema Prisma con la base de datos
 - `npm run prisma:studio`: abre Prisma Studio
 - `npm run scrape`: ejecuta scraping y genera `data/kiwoko-products.json`
+
+## Backend para app Android (movil real)
+
+Este backend ya es compatible con Android usando token Bearer.
+
+### URL base recomendada
+
+- Produccion (movil real): `https://TU-APP.ondigitalocean.app`
+- Desarrollo con emulador Android: `http://10.0.2.2:3000`
+- Desarrollo con movil fisico en la misma red: `http://IP_LOCAL_PC:3000`
+
+### Headers y auth
+
+- En Android usa `Authorization: Bearer <token>` para rutas protegidas.
+- No dependas de cookies para la app movil.
+
+### Campos y tipos utiles para Android
+
+- IDs (`user.id`, `product.id`) son enteros: en Kotlin, mejor `Long`.
+- `GET /api/products` devuelve objeto paginado (`total`, `take`, `skip`, `items`), no lista plana.
+
+### Recomendaciones para movil
+
+- Usa siempre HTTPS en produccion.
+- Si pruebas por HTTP en local con movil fisico, habilita cleartext solo para debug en Android.
 
 ## Endpoints principales
 
@@ -118,6 +199,10 @@ Al iniciar, si no existe, se crea automáticamente:
 ## Pruebas API con REST Client
 
 Se incluye el archivo `test-api.http` en la raiz para ejecutar pruebas desde la extension REST Client de VS Code.
+
+## Guia Android + Prompt de auditoria
+
+Para revisar coherencia entre este backend y tu app Android, usa `README_ANDROID_PROMPT.md`.
 
 ## Flujo rápido con Makefile (opcional)
 
