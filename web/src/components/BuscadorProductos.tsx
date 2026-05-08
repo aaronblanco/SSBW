@@ -14,7 +14,7 @@ export default function BuscadorProductos() {
         const query = new URLSearchParams({ take: String(take), skip: String(skip) });
         if (search) query.set('search', search);
         
-        const response = await fetch(`http://localhost:3000/api/products?${query.toString()}`);
+        const response = await fetch(`/api/products?${query.toString()}`);
         if (!response.ok) throw new Error("Error fetching");
         const data = await response.json();
         setProducts(data.items || []);
