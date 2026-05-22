@@ -8,7 +8,7 @@ RUN npm ci
 COPY web ./
 RUN npm run build
 
-FROM node:20-bookworm-slim AS astro-builder
+FROM node:22-bookworm-slim AS astro-builder
 
 WORKDIR /app/astro
 
