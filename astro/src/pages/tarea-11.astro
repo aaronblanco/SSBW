@@ -2,7 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import GaleriaGatitos from '../components/GaleriaGatitos';
 
-const reactUrl = import.meta.env.PUBLIC_REACT_URL ?? 'http://localhost:5173/';
+const reactUrl = import.meta.env.PUBLIC_REACT_URL
+	?? (import.meta.env.PROD ? '/react/' : 'http://localhost:5173/');
 ---
 
 <Layout title="Tarea 11 - Astro" description="Demo interactiva de Astro con catálogo desde API y galería local.">

@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const reactUrl = import.meta.env.PUBLIC_REACT_URL ?? 'http://localhost:5173/';
+const reactUrl = import.meta.env.PUBLIC_REACT_URL
+	?? (import.meta.env.PROD ? '/react/' : 'http://localhost:5173/');
 ---
 
 <Layout title="SSBW - Inicio" description="Portada de navegación hacia la app React original y las tareas de Astro.">

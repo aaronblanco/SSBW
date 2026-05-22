@@ -51,9 +51,16 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
+const astroDistDir = path.resolve(__dirname, '..', 'astro', 'dist');
 const reactDistDir = path.resolve(__dirname, '..', 'web', 'dist');
 const publicDir = path.resolve(__dirname, '..', 'public');
-const frontendDir = fs.existsSync(reactDistDir) ? reactDistDir : publicDir;
+const frontendDir = fs.existsSync(astroDistDir)
+  ? astroDistDir
+  : (fs.existsSync(reactDistDir) ? reactDistDir : publicDir);
+
+if (fs.existsSync(reactDistDir)) {
+  app.use('/react', express.static(reactDistDir));
+}
 
 app.use(express.static(frontendDir));
 
@@ -63,6 +70,24 @@ app.get('/health', (_, res) => {
 
 app.get('/', (_, res) => {
   res.sendFile(path.join(frontendDir, 'index.html'));
+});
+
+app.get('/react', (req, res, next) => {
+  if (!fs.existsSync(reactDistDir)) {
+    next();
+    return;
+  }
+
+  res.sendFile(path.join(reactDistDir, 'index.html'));
+});
+
+app.get('/react/*', (req, res, next) => {
+  if (!fs.existsSync(reactDistDir)) {
+    next();
+    return;
+  }
+
+  res.sendFile(path.join(reactDistDir, 'index.html'));
 });
 
 authService.ensureDefaultAdmin().catch((error) => {
