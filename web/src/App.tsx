@@ -49,8 +49,10 @@ function Tienda() {
 }
 
 function App() {
+  const basename = window.location.pathname.startsWith('/react') ? '/react' : '/';
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Layout>
         <Routes>
           <Route path="/" element={<Tienda />} />
