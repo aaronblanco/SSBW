@@ -1,4 +1,4 @@
-const cartsByUser = new Map();
+const cartRepository = require('../repositories/cartRepository');
 
 function normalizeItemPayload(payload = {}) {
   const id = Number(payload.id);
@@ -23,15 +23,6 @@ function normalizeItemPayload(payload = {}) {
   };
 }
 
-function readCart(userId) {
-  return cartsByUser.get(userId) || [];
-}
-
-function writeCart(userId, items) {
-  cartsByUser.set(userId, items);
-  return items;
-}
-
 function cartTotal(items) {
   return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }
@@ -40,8 +31,20 @@ function cartCount(items) {
   return items.reduce((sum, item) => sum + item.quantity, 0);
 }
 
-function listCart(userId) {
-  const items = readCart(userId);
+function toCartItem(row) {
+  return {
+    id: row.productId,
+    title: row.title,
+    price: row.price,
+    image: row.image,
+    url: row.url,
+    quantity: row.quantity
+  };
+}
+
+async function listCart(userId) {
+  const rows = await cartRepository.listByUser(userId);
+  const items = rows.map(toCartItem);
   return {
     items,
     count: cartCount(items),
@@ -49,51 +52,24 @@ function listCart(userId) {
   };
 }
 
-function addToCart(userId, payload) {
+async function addToCart(userId, payload) {
   const product = normalizeItemPayload(payload);
-  const items = [...readCart(userId)];
-  const index = items.findIndex((item) => item.id === product.id);
-
-  if (index >= 0) {
-    items[index] = {
-      ...items[index],
-      quantity: items[index].quantity + 1
-    };
-  } else {
-    items.push({
-      ...product,
-      quantity: 1
-    });
-  }
-
-  writeCart(userId, items);
+  await cartRepository.addOne(userId, product);
   return listCart(userId);
 }
 
-function removeFromCart(userId, productId) {
+async function removeFromCart(userId, productId) {
   const safeProductId = Number(productId);
-  const items = [...readCart(userId)];
-  const index = items.findIndex((item) => item.id === safeProductId);
-
-  if (index < 0) {
-    return listCart(userId);
+  if (!Number.isInteger(safeProductId) || safeProductId <= 0) {
+    throw new Error('ID de producto invalido');
   }
 
-  if (items[index].quantity > 1) {
-    items[index] = {
-      ...items[index],
-      quantity: items[index].quantity - 1
-    };
-  } else {
-    items.splice(index, 1);
-  }
-
-  writeCart(userId, items);
+  await cartRepository.removeOne(userId, safeProductId);
   return listCart(userId);
 }
 
-function clearCart(userId) {
-  writeCart(userId, []);
+async function clearCart(userId) {
+  await cartRepository.clearByUser(userId);
   return listCart(userId);
 }
 

@@ -5,7 +5,7 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export default function CarruselProductos() {
   // Obtenemos 5 productos para el carrusel
-  const { data, error, isLoading } = useSWR('http://localhost:3000/api/products?take=5', fetcher);
+  const { data, error, isLoading } = useSWR('/api/products?take=5', fetcher);
   const products = data?.items || [];
   
   const [currentIndex, setCurrentIndex] = useState(0);
