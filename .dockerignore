@@ -6,6 +6,6 @@ npm-debug.log*
 .env.*
 !.env.example
 logs
-data
+/data
 web/node_modules
 web/dist
