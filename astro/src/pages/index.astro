@@ -1,0 +1,159 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const reactUrl = import.meta.env.PUBLIC_REACT_URL ?? 'http://localhost:5173/';
+---
+
+<Layout title="SSBW - Inicio" description="Portada de navegación hacia la app React original y las tareas de Astro.">
+	<main class="home">
+		<section class="hero">
+			<p class="eyebrow">SSBW / Astro</p>
+			<h1>Elige una de las tres webs</h1>
+			<p class="lead">
+				La portada queda solo como menú: arriba tienes la app React original y debajo las páginas
+				correspondientes a las tareas 11 y 12.
+			</p>
+		</section>
+
+		<section class="links-grid" aria-label="Navegación principal">
+			<a class="link-card featured" href={reactUrl} target="_blank" rel="noreferrer">
+				<span class="tag">React original</span>
+				<h2>Web actual de la carpeta web</h2>
+				<p>Abre la versión React/Vite del proyecto, con su navegación y componentes originales.</p>
+				<span class="cta">Abrir web React</span>
+			</a>
+
+			<a class="link-card" href="/tarea-11/">
+				<span class="tag">Tarea 11</span>
+				<h2>Astro + parte interactiva</h2>
+				<p>Página con la parte dinámica y la demo que acompaña a la tarea de Astro.</p>
+				<span class="cta">Ir a tarea 11</span>
+			</a>
+
+			<a class="link-card" href="/tarea-12/">
+				<span class="tag">Tarea 12</span>
+				<h2>SSG con contenidos estáticos</h2>
+				<p>Página generada estáticamente con productos locales y rutas dinámicas.</p>
+				<span class="cta">Ir a tarea 12</span>
+			</a>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.home {
+		width: min(1120px, calc(100% - 2rem));
+		margin: 0 auto;
+		padding: 5rem 0 4rem;
+	}
+
+	.hero {
+		max-width: 46rem;
+		margin-bottom: 2rem;
+	}
+
+	.eyebrow {
+		margin: 0 0 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.28em;
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: var(--muted);
+	}
+
+	h1,
+	h2,
+	p {
+		margin: 0;
+	}
+
+	h1 {
+		font-size: clamp(2.4rem, 5vw, 4.6rem);
+		line-height: 0.96;
+		letter-spacing: -0.04em;
+	}
+
+	.lead {
+		margin-top: 1rem;
+		max-width: 44rem;
+		font-size: 1.05rem;
+		line-height: 1.7;
+		color: var(--muted);
+	}
+
+	.links-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.link-card {
+		display: grid;
+		gap: 1rem;
+		padding: 1.4rem;
+		border-radius: 28px;
+		border: 1px solid var(--line);
+		background: rgba(255, 255, 255, 0.05);
+		text-decoration: none;
+		box-shadow: var(--shadow);
+		backdrop-filter: blur(18px);
+		transition:
+			transform 0.2s ease,
+			border-color 0.2s ease,
+			background 0.2s ease;
+	}
+
+	.link-card:hover {
+		transform: translateY(-3px);
+		border-color: rgba(245, 158, 11, 0.35);
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	.link-card.featured {
+		background:
+			linear-gradient(140deg, rgba(245, 158, 11, 0.16), rgba(255, 255, 255, 0.05)),
+			rgba(255, 255, 255, 0.05);
+	}
+
+	.tag,
+	.cta {
+		display: inline-flex;
+		align-items: center;
+		width: fit-content;
+		padding: 0.38rem 0.72rem;
+		border-radius: 999px;
+		border: 1px solid var(--line);
+		font-size: 0.78rem;
+		font-weight: 700;
+	}
+
+	.tag {
+		color: var(--accent);
+		background: rgba(245, 158, 11, 0.08);
+	}
+
+	.link-card h2 {
+		font-size: 1.35rem;
+		line-height: 1.1;
+	}
+
+	.link-card p {
+		color: var(--muted);
+		line-height: 1.6;
+	}
+
+	.cta {
+		color: var(--text);
+		background: rgba(255, 255, 255, 0.04);
+	}
+
+	@media (max-width: 900px) {
+		.links-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.home {
+			padding-top: 3rem;
+		}
+	}
+</style>

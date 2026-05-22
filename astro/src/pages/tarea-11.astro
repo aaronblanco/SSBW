@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+import GaleriaGatitos from '../components/GaleriaGatitos';
+
+const reactUrl = import.meta.env.PUBLIC_REACT_URL ?? 'http://localhost:5173/';
+---
+
+<Layout title="Tarea 11 - Astro" description="Demo interactiva de Astro con catálogo desde API y galería local.">
+	<main class="page">
+		<section class="intro panel">
+			<div>
+				<p class="eyebrow">Tarea 11</p>
+				<h1>Astro con catálogo vivo</h1>
+				<p class="lead">
+					Esta página reúne la parte interactiva del proyecto: productos cargados desde la API,
+					búsqueda, paginación y galería local de gatitos.
+				</p>
+			</div>
+			<div class="actions">
+				<a class="button ghost" href={reactUrl} target="_blank" rel="noreferrer">Abrir React original</a>
+				<a class="button" href="/">Volver al inicio</a>
+			</div>
+		</section>
+
+		<section class="panel">
+			<div class="section-head">
+				<div>
+					<p class="eyebrow">React en Astro</p>
+					<h2>Galería de gatitos desde React</h2>
+				</div>
+				<p>Este bloque usa el componente React directamente dentro de Astro con client:load.</p>
+			</div>
+
+			<GaleriaGatitos client:load />
+		</section>
+	</main>
+</Layout>

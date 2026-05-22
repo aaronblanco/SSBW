@@ -1,0 +1,128 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { productosSSG } from '../../data/productos';
+
+export async function getStaticPaths() {
+	return productosSSG.map((producto) => ({
+		params: { slug: producto.slug },
+		props: { producto }
+	}));
+}
+
+const { producto } = Astro.props;
+---
+
+<Layout title={`${producto.titulo} - Tarea 12`} description={producto.descripcion}>
+	<main class="page">
+		<section class="panel detail">
+			<div class="media">
+				<img src={producto.imagen} alt={producto.titulo} />
+			</div>
+			<div class="info">
+				<p class="eyebrow">Detalle estático</p>
+				<h1>{producto.titulo}</h1>
+				<p class="lead">{producto.descripcion}</p>
+				<p class="price">{producto.precio}</p>
+				<div class="actions">
+					<a class="button ghost" href="/tarea-12/">Volver a destacados</a>
+					<a class="button" href="/">Inicio</a>
+				</div>
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.page {
+		width: min(1120px, calc(100% - 2rem));
+		margin: 0 auto;
+		padding: 2rem 0 3rem;
+	}
+
+	.panel {
+		padding: 1.25rem;
+		border-radius: 28px;
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid var(--line);
+		box-shadow: var(--shadow);
+		backdrop-filter: blur(18px);
+	}
+
+	.detail {
+		display: grid;
+		grid-template-columns: 1.1fr 0.9fr;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.media img {
+		width: 100%;
+		border-radius: 22px;
+		display: block;
+		object-fit: cover;
+		aspect-ratio: 4 / 3;
+	}
+
+	.eyebrow {
+		margin: 0 0 0.4rem;
+		text-transform: uppercase;
+		letter-spacing: 0.24em;
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: var(--muted);
+	}
+
+	h1,
+	p {
+		margin: 0;
+	}
+
+	h1 {
+		font-size: clamp(2rem, 4vw, 3.25rem);
+		line-height: 0.98;
+	}
+
+	.lead {
+		margin-top: 0.8rem;
+		color: var(--muted);
+		line-height: 1.7;
+	}
+
+	.price {
+		margin-top: 1rem;
+		font-size: 1.35rem;
+		font-weight: 800;
+		color: var(--accent);
+	}
+
+	.actions {
+		display: flex;
+		gap: 0.6rem;
+		flex-wrap: wrap;
+		margin-top: 1.25rem;
+	}
+
+	.button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.78rem 1rem;
+		border-radius: 999px;
+		border: 1px solid var(--line);
+		background: linear-gradient(135deg, var(--accent), #fb7185);
+		color: #111827;
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	.button.ghost {
+		background: rgba(255, 255, 255, 0.04);
+		color: var(--text);
+	}
+
+	@media (max-width: 900px) {
+		.detail {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

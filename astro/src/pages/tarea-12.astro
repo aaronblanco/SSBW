@@ -1,0 +1,179 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { productosSSG } from '../data/productos';
+
+const destacados = productosSSG.slice(0, 12);
+---
+
+<Layout title="Tarea 12 - SSG" description="Página estática con productos locales y rutas dinámicas generadas en build.">
+	<main class="page">
+		<section class="intro panel">
+			<div>
+				<p class="eyebrow">Tarea 12</p>
+				<h1>Static Site Generation</h1>
+				<p class="lead">
+					Esta página se genera estáticamente con productos locales y enlaza a páginas de detalle
+					creadas en build.
+				</p>
+			</div>
+			<div class="actions">
+				<a class="button ghost" href="/">Volver al inicio</a>
+			</div>
+		</section>
+
+		<section class="panel">
+			<div class="section-head">
+				<div>
+					<p class="eyebrow">Destacados</p>
+					<h2>12 productos generados con datos locales</h2>
+				</div>
+				<p>Esto se renderiza desde datos del proyecto, no desde una API.</p>
+			</div>
+
+			<div class="grid">
+				{destacados.map((producto) => (
+					<a class="card" href={`/productos/${producto.slug}/`}>
+						<img src={producto.imagen} alt={producto.titulo} loading="lazy" />
+						<div>
+							<h3>{producto.titulo}</h3>
+							<p>{producto.precio}</p>
+						</div>
+					</a>
+				))}
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.page {
+		width: min(1120px, calc(100% - 2rem));
+		margin: 0 auto;
+		padding: 2rem 0 3rem;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.panel {
+		padding: 1.25rem;
+		border-radius: 28px;
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid var(--line);
+		box-shadow: var(--shadow);
+		backdrop-filter: blur(18px);
+	}
+
+	.intro {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		align-items: end;
+	}
+
+	.eyebrow {
+		margin: 0 0 0.4rem;
+		text-transform: uppercase;
+		letter-spacing: 0.24em;
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: var(--muted);
+	}
+
+	h1,
+	h2,
+	h3,
+	p {
+		margin: 0;
+	}
+
+	h1 {
+		font-size: clamp(2rem, 4vw, 3.5rem);
+		line-height: 0.98;
+	}
+
+	.lead {
+		margin-top: 0.8rem;
+		color: var(--muted);
+		line-height: 1.65;
+		max-width: 48rem;
+	}
+
+	.actions {
+		display: flex;
+		gap: 0.6rem;
+		flex-wrap: wrap;
+	}
+
+	.button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.78rem 1rem;
+		border-radius: 999px;
+		border: 1px solid var(--line);
+		background: linear-gradient(135deg, var(--accent), #fb7185);
+		color: #111827;
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	.button.ghost {
+		background: rgba(255, 255, 255, 0.04);
+		color: var(--text);
+	}
+
+	.section-head {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1rem;
+		align-items: end;
+	}
+
+	.section-head p {
+		color: var(--muted);
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.card {
+		display: grid;
+		gap: 0.75rem;
+		overflow: hidden;
+		border-radius: 22px;
+		background: rgba(255, 255, 255, 0.04);
+		border: 1px solid var(--line);
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.card img {
+		width: 100%;
+		height: 190px;
+		object-fit: cover;
+		display: block;
+	}
+
+	.card div {
+		padding: 0.95rem;
+		display: grid;
+		gap: 0.35rem;
+	}
+
+	.card p {
+		color: var(--muted);
+	}
+
+	@media (max-width: 900px) {
+		.intro,
+		.section-head,
+		.grid {
+			grid-template-columns: 1fr;
+			flex-direction: column;
+		}
+	}
+</style>
