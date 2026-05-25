@@ -2,7 +2,7 @@
 
 Backend en Express (arquitectura MVC) con PostgreSQL + Prisma, scraping con Playwright y frontend integrado.
 
-En produccion, el contenedor compila y sirve la app React de `web/` (salida `web/dist`). En desarrollo local, si no existe build de React, se mantiene el fallback de `public/`.
+En produccion, la raiz sirve la portada de Astro y desde ella se enlaza a la app React de `web/` y a las paginas legacy de `public/`. En desarrollo local, si no existe build de Astro, se mantiene el fallback de `public/`.
 
 ## Puesta en marcha tras clonar el repo
 
@@ -97,7 +97,7 @@ En producción, **cambia siempre** `DEFAULT_ADMIN_PASSWORD` y `JWT_SECRET` media
 
 ## Despliegue en DigitalOcean (App Platform)
 
-El proyecto es viable para subir a DigitalOcean. Incluye backend Express, Prisma (PostgreSQL) y frontend React servido por el propio backend.
+El proyecto es viable para subir a DigitalOcean. Incluye backend Express, Prisma (PostgreSQL), una portada Astro en la raiz y la app React servida por el propio backend.
 
 ### 1. Crear base de datos administrada
 
@@ -135,6 +135,8 @@ Si usas `npm run start:cloud`, este paso se ejecuta automaticamente en cada arra
 ### 4. Verificación rápida post-deploy
 
 - `GET /health` debe responder `{ "ok": true, ... }`.
+- Abre `/` para comprobar la portada Astro.
+- Desde la portada, verifica el enlace a `/react/` y el acceso a `/auth.html` y `/admin.html`.
 - Comprueba login y acceso a `GET /api/auth/me`.
 - Ejecuta un scraping corto (`maxPages=1`) para validar Playwright en runtime.
 

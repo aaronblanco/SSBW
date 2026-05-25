@@ -14,13 +14,16 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "start:cloud": "npm run db:push && node src/scripts/seedIfEmpty.js && npm run start",
+    "build:web": "npm --prefix web run build",
+    "build:astro": "npm --prefix astro run build",
+    "start:cloud": "npm run db:push && node src/scripts/seedIfEmpty.js && npm run prestart:cloud && npm run start",
     "scrape": "node src/scripts/runScrape.js",
     "seed:if-empty": "node src/scripts/seedIfEmpty.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "prestart:cloud": "node -e \"const fs=require('fs');const hasAstro=fs.existsSync('astro/dist/index.html');const hasReact=fs.existsSync('web/dist/index.html');process.exit(hasAstro&&hasReact?0:1)\" || npm --prefix web install && npm --prefix astro install && npm run build:web && npm run build:astro"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
