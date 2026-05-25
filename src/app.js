@@ -62,7 +62,7 @@ if (fs.existsSync(reactDistDir)) {
   app.use('/react', express.static(reactDistDir));
 }
 
-app.use(express.static(publicDir));
+app.use(express.static(publicDir, { index: false }));
 app.use(express.static(frontendDir));
 
 app.get('/health', (_, res) => {
