@@ -3,7 +3,19 @@ import useSWR from 'swr';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
-export default function CarruselProductos() {
+type CartProduct = {
+  id: number
+  title: string
+  price: number
+  image?: string | null
+  url?: string | null
+}
+
+export default function CarruselProductos({
+  onAddToCart
+}: {
+  onAddToCart: (product: CartProduct) => Promise<void>
+}) {
   // Obtenemos 5 productos para el carrusel
   const { data, error, isLoading } = useSWR('/api/products?take=5', fetcher);
   const products = data?.items || [];
@@ -33,54 +45,65 @@ export default function CarruselProductos() {
 
   const currentProduct = products[currentIndex];
 
+  const handleAddToCart = async () => {
+    await onAddToCart({
+      id: currentProduct.id,
+      title: currentProduct.title,
+      price: currentProduct.price,
+      image: currentProduct.image,
+      url: currentProduct.url
+    })
+  }
+
   return (
     <div className="container py-4">
-      <div className="position-relative mx-auto bg-white rounded shadow-sm overflow-hidden border-0" style={{ maxWidth: '900px', height: '450px' }}>
+      <div className="position-relative mx-auto bg-white rounded shadow-sm overflow-hidden border-0 ssbw-carousel">
         
         {/* Imagen principal con transición suave */}
-        <div className="w-100 h-100" style={{ transition: 'opacity 0.5s ease-in-out' }}>
+        <div className="w-100 h-100 ssbw-carousel__image-wrap">
           <img
             key={currentProduct.id} // Forza re-render para la transición
             src={currentProduct.image || 'https://placehold.co/900x600?text=Sin+imagen'}
-            className="w-100 h-100 fade-in"
+            className="w-100 h-100 fade-in ssbw-carousel__image"
             alt={currentProduct.title}
-            style={{ objectFit: 'cover', animation: 'fadeIn 0.5s ease-in-out' }}
           />
         </div>
         
         {/* Capa inferior oscura para el texto */}
-        <div className="position-absolute bottom-0 start-0 w-100 p-4 text-white text-center" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85), transparent)' }}>
+        <div className="position-absolute bottom-0 start-0 w-100 p-4 text-white text-center ssbw-carousel__overlay">
           <h4 className="font-montserrat fw-bold mb-2 text-shadow">{currentProduct.title}</h4>
           <p className="mb-3 fs-5 fw-semibold text-warning">{currentProduct.price ? `${currentProduct.price.toFixed(2)} EUR` : 'Precio no disponible'}</p>
-          <a href={`/product.html?id=${currentProduct.id}`} className="btn btn-primary btn-sm font-montserrat">Ver producto</a>
+          <div className="d-flex justify-content-center gap-2 flex-wrap">
+            <a href={`/product.html?id=${currentProduct.id}`} className="btn btn-primary btn-sm font-montserrat">Ver producto</a>
+            <button type="button" className="btn btn-success btn-sm font-montserrat" onClick={handleAddToCart}>
+              Añadir al carrito
+            </button>
+          </div>
         </div>
 
         {/* Flecha izquierda */}
         <button 
           onClick={prevSlide}
-          className="btn btn-dark position-absolute top-50 start-0 translate-middle-y ms-3 rounded-circle d-flex align-items-center justify-content-center"
-          style={{ width: '45px', height: '45px', zIndex: 10, background: 'rgba(0,0,0,0.5)', border: 'none' }}
+          className="btn btn-dark position-absolute top-50 start-0 translate-middle-y ms-3 rounded-circle d-flex align-items-center justify-content-center ssbw-carousel__arrow ssbw-carousel__arrow--left"
         >
-          <span className="fs-5" style={{ transform: 'translateX(-2px)' }}>❮</span>
+          <span className="fs-5 ssbw-carousel__arrow-icon ssbw-carousel__arrow-icon--left">❮</span>
         </button>
         
         {/* Flecha derecha */}
         <button 
           onClick={nextSlide}
-          className="btn btn-dark position-absolute top-50 end-0 translate-middle-y me-3 rounded-circle d-flex align-items-center justify-content-center"
-          style={{ width: '45px', height: '45px', zIndex: 10, background: 'rgba(0,0,0,0.5)', border: 'none' }}
+          className="btn btn-dark position-absolute top-50 end-0 translate-middle-y me-3 rounded-circle d-flex align-items-center justify-content-center ssbw-carousel__arrow ssbw-carousel__arrow--right"
         >
-          <span className="fs-5" style={{ transform: 'translateX(2px)' }}>❯</span>
+          <span className="fs-5 ssbw-carousel__arrow-icon ssbw-carousel__arrow-icon--right">❯</span>
         </button>
         
         {/* Puntos indicadores */}
-        <div className="position-absolute top-0 end-0 p-3 d-flex gap-2" style={{ zIndex: 10 }}>
+        <div className="position-absolute top-0 end-0 p-3 d-flex gap-2 ssbw-carousel__dots">
           {products.map((_: any, idx: number) => (
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
-              className={`btn p-0 rounded-circle ${idx === currentIndex ? 'bg-primary' : 'bg-light opacity-75'}`}
-              style={{ width: '12px', height: '12px', border: '1px solid rgba(0,0,0,0.3)', transition: 'all 0.3s' }}
+              className={`btn p-0 rounded-circle ssbw-carousel__dot ${idx === currentIndex ? 'bg-primary' : 'bg-light opacity-75'}`}
               aria-label={`Ir a producto ${idx + 1}`}
             />
           ))}

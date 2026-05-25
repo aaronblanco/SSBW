@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react';
 
-export default function BuscadorProductos() {
+type CartProduct = {
+  id: number
+  title: string
+  price: number
+  image?: string | null
+  url?: string | null
+}
+
+export default function BuscadorProductos({
+  onAddToCart
+}: {
+  onAddToCart: (product: CartProduct) => Promise<void>
+}) {
   const [products, setProducts] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(0);
@@ -31,6 +43,16 @@ export default function BuscadorProductos() {
     setSearch(searchInput);
     setSkip(0);
   };
+
+  const handleAddToCart = async (item: any) => {
+    await onAddToCart({
+      id: item.id,
+      title: item.title,
+      price: item.price,
+      image: item.image,
+      url: item.url
+    })
+  }
 
   return (
     <div className="container py-4">
@@ -75,9 +97,8 @@ export default function BuscadorProductos() {
               <div className="card h-100 shadow-sm border-0">
                 <img
                   src={item.image || 'https://placehold.co/600x400?text=Sin+imagen'}
-                  className="card-img-top"
+                  className="card-img-top ssbw-product-image"
                   alt={item.title}
-                  style={{ objectFit: 'cover', height: '220px' }}
                 />
                 <div className="card-body d-flex flex-column">
                   <h2 className="h6 font-montserrat font-bold">{item.title}</h2>
@@ -85,7 +106,7 @@ export default function BuscadorProductos() {
                   <div className="d-flex gap-2 mt-auto">
                     <a href={`/product.html?id=${item.id}`} className="btn btn-sm btn-primary font-montserrat">Detalle</a>
                     <a href={item.url} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary font-montserrat">Web tienda</a>
-                    <button type="button" className="btn btn-sm btn-success font-montserrat">Añadir</button>
+                    <button type="button" className="btn btn-sm btn-success font-montserrat" onClick={() => handleAddToCart(item)}>Añadir</button>
                   </div>
                 </div>
               </div>
