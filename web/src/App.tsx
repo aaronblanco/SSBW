@@ -62,6 +62,8 @@ function Layout({
   const location = useLocation();
   const { user, count, items, totalAmount, loading, error } = cart;
 
+  const astroHref = '/';
+
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-dark navbar-dark font-montserrat">
@@ -72,10 +74,14 @@ function Layout({
             <div className="navbar-nav flex-row gap-3 ms-2 ms-md-4">
               <Link className={`nav-link ${location.pathname === '/' ? 'active fw-bold' : ''}`} to="/">Tienda</Link>
               <Link className={`nav-link ${location.pathname === '/adopcion' ? 'active fw-bold' : ''}`} to="/adopcion">Adopción</Link>
+              <a className="nav-link" href={astroHref}>Astro</a>
             </div>
           </div>
 
           <div className="d-flex gap-2 align-items-center mt-2 mt-lg-0 ms-auto">
+            {user?.role === 'admin' && (
+              <a className="btn btn-sm btn-outline-warning" href="/admin.html">Admin</a>
+            )}
             <button className="btn btn-sm btn-outline-light" type="button" onClick={onToggleDrawer}>
               Carrito ({count})
             </button>
@@ -255,19 +261,39 @@ function App() {
     void refreshCart()
   }, [])
 
-  const addToCart = async (product: CartProduct) => {
-    const response = await fetch('/api/cart', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(product)
-    })
+  const buildReturnUrl = () => {
+    const currentUrl = new URL(window.location.href)
+    const returnUrl = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`
+    return returnUrl.startsWith('/react') ? returnUrl : '/react/'
+  }
 
-    await readJson(response)
-    await refreshCart()
-    setDrawerOpen(true)
+  const addToCart = async (product: CartProduct) => {
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(product)
+      })
+
+      await readJson(response)
+      await refreshCart()
+      setDrawerOpen(true)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (message === 'No autenticado') {
+        window.location.href = `/auth.html?next=${encodeURIComponent(buildReturnUrl())}`
+        return
+      }
+
+      setCart((current) => ({
+        ...current,
+        error: message || 'No se pudo anadir al carrito'
+      }))
+      setDrawerOpen(true)
+    }
   }
 
   const removeFromCart = async (productId: number) => {

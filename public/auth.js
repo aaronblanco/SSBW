@@ -9,6 +9,22 @@ const registerPassword = document.getElementById('registerPassword');
 const loginPasswordHint = document.getElementById('loginPasswordHint');
 const registerPasswordHint = document.getElementById('registerPasswordHint');
 
+function getReturnUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const next = params.get('next') || '';
+
+  if (!next || next.startsWith('//')) {
+    return '';
+  }
+
+  try {
+    const url = new URL(next, window.location.origin);
+    return url.origin === window.location.origin ? `${url.pathname}${url.search}${url.hash}` : '';
+  } catch {
+    return '';
+  }
+}
+
 function setStatus(message, type = 'info') {
   statusBox.className = `alert alert-${type} mt-3 mb-0`;
   statusBox.textContent = message;
@@ -106,7 +122,7 @@ registerForm.addEventListener('submit', async (event) => {
   try {
     const user = await window.SSBWAuth.register(payload);
     setStatus(`Cuenta creada. Bienvenido ${user.firstName}.`, 'success');
-    window.location.href = '/profile.html';
+    window.location.href = getReturnUrl() || '/profile.html';
   } catch (error) {
     setStatus(error.message, 'danger');
   }
@@ -129,7 +145,7 @@ loginForm.addEventListener('submit', async (event) => {
   try {
     const user = await window.SSBWAuth.login(email, password);
     setStatus(`Sesion iniciada. Hola ${user.firstName}.`, 'success');
-    window.location.href = user.role === 'admin' ? '/admin.html' : '/profile.html';
+    window.location.href = getReturnUrl() || (user.role === 'admin' ? '/admin.html' : '/profile.html');
   } catch (error) {
     setStatus(error.message, 'danger');
   }
