@@ -88,6 +88,22 @@ async function createProduct(data) {
   return prisma.product.create({ data });
 }
 
+async function upsertByUrl(data) {
+  return prisma.product.upsert({
+    where: { url: data.url },
+    create: data,
+    update: {
+      source: data.source,
+      title: data.title,
+      price: data.price,
+      rawPrice: data.rawPrice,
+      currency: data.currency,
+      image: data.image,
+      scrapedAt: data.scrapedAt
+    }
+  });
+}
+
 async function updateProduct(id, data) {
   return prisma.product.update({
     where: { id },
@@ -105,6 +121,7 @@ module.exports = {
   count,
   findById,
   createProduct,
+  upsertByUrl,
   updateProduct,
   deleteProduct
 };

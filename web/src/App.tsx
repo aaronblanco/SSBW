@@ -49,7 +49,8 @@ function Layout({
   onToggleDrawer,
   onCloseDrawer,
   onRemoveItem,
-  onClearCart
+  onClearCart,
+  onLogout
 }: {
   children: React.ReactNode
   cart: CartInfo
@@ -58,6 +59,7 @@ function Layout({
   onCloseDrawer: () => void
   onRemoveItem: (productId: number) => Promise<void>
   onClearCart: () => Promise<void>
+  onLogout: () => Promise<void>
 }) {
   const location = useLocation();
   const { user, count, items, totalAmount, loading, error } = cart;
@@ -88,7 +90,13 @@ function Layout({
             <span className={`badge ${user?.role === 'admin' ? 'text-bg-warning' : user ? 'text-bg-success' : 'text-bg-secondary'}`}>
               {user ? `${user.firstName} (${user.role})` : 'No autenticado'}
             </span>
-            <a className="btn btn-sm btn-outline-light" href="/auth.html">Acceso</a>
+            {user ? (
+              <button className="btn btn-sm btn-outline-light" type="button" onClick={() => void onLogout()}>
+                Cerrar sesión
+              </button>
+            ) : (
+              <a className="btn btn-sm btn-outline-light" href="/auth.html">Acceso</a>
+            )}
           </div>
         </div>
       </nav>
@@ -316,6 +324,23 @@ function App() {
     await refreshCart()
   }
 
+  const logout = async () => {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include'
+    })
+
+    setDrawerOpen(false)
+    setCart({
+      user: null,
+      items: [],
+      count: 0,
+      totalAmount: 0,
+      loading: false,
+      error: null
+    })
+  }
+
   return (
     <BrowserRouter basename={basename}>
       <Layout
@@ -325,6 +350,7 @@ function App() {
         onCloseDrawer={() => setDrawerOpen(false)}
         onRemoveItem={removeFromCart}
         onClearCart={clearCart}
+        onLogout={logout}
       >
         <Routes>
           <Route path="/" element={<Tienda onAddToCart={addToCart} />} />

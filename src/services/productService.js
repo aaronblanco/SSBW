@@ -88,8 +88,7 @@ async function getProductById(id) {
 
 async function createProduct(payload) {
   const now = new Date();
-
-  return productRepository.createProduct({
+  const data = {
     source: String(payload.source || 'manual').trim() || 'manual',
     title: String(payload.title || '').trim(),
     price: payload.price == null || payload.price === '' ? null : Number(payload.price),
@@ -98,7 +97,13 @@ async function createProduct(payload) {
     url: String(payload.url || '').trim(),
     image: String(payload.image || '').trim() || null,
     scrapedAt: payload.scrapedAt ? new Date(payload.scrapedAt) : now
-  });
+  };
+
+  if (!data.url) {
+    throw new Error('URL obligatoria');
+  }
+
+  return productRepository.upsertByUrl(data);
 }
 
 async function updateProduct(id, payload) {

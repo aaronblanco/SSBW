@@ -25,6 +25,15 @@ function getReturnUrl() {
   }
 }
 
+async function redirectIfAuthenticated() {
+  const user = await window.SSBWAuth.apiMe();
+  if (!user) {
+    return;
+  }
+
+  window.location.replace(getReturnUrl() || (user.role === 'admin' ? '/admin.html' : '/profile.html'));
+}
+
 function setStatus(message, type = 'info') {
   statusBox.className = `alert alert-${type} mt-3 mb-0`;
   statusBox.textContent = message;
@@ -104,6 +113,8 @@ registerPassword?.addEventListener('blur', () => {
 
 switchToLogin.addEventListener('click', showLoginForm);
 switchToRegister.addEventListener('click', showRegisterForm);
+
+void redirectIfAuthenticated();
 
 registerForm.addEventListener('submit', async (event) => {
   event.preventDefault();
