@@ -95,10 +95,13 @@ async function createProduct(payload) {
     body: JSON.stringify(payload)
   });
 
+  const data = await response.json().catch(() => ({}));
+
   if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'No se pudo crear');
+    throw new Error(data.detail || data.error || 'No se pudo crear');
   }
+
+  return data;
 }
 
 async function saveProduct(id, payload) {
@@ -132,6 +135,7 @@ async function deleteProduct(id) {
 createForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const payload = Object.fromEntries(new FormData(createForm).entries());
+  payload.scrapedAt = new Date().toISOString();
 
   try {
     await createProduct(payload);

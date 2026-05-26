@@ -10,6 +10,7 @@ Revision realizada sobre rutas, controladores y servicios actuales.
 
 Puntos relevantes para Android:
 - Auth soporta token Bearer en header Authorization y tambien cookie.
+- Admin demo por defecto: `admin@ssbw.local` / `!SqvXv!3KivhniR#8H@x^W`.
 - IDs de User/Product son numericos (Int en backend, usar Long en Android).
 - GET /api/products devuelve objeto paginado (no lista plana).
 - Carrito existe en backend y persiste en PostgreSQL por usuario.

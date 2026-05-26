@@ -4,7 +4,7 @@ const userRepository = require('../repositories/userRepository');
 const { signAuthToken, verifyAuthToken } = require('../auth/jwtService');
 
 const ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL || 'admin@ssbw.local';
-const ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin123!';
+const ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || '!SqvXv!3KivhniR#8H@x^W';
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
 
 function hashPasswordLegacy(plainText) {

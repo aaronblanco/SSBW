@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:3000
 @adminEmail = admin@ssbw.local
-@adminPassword = Admin123!
+@adminPassword = !SqvXv!3KivhniR#8H@x^W
 
 ### Health
 GET {{baseUrl}}/health

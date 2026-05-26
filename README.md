@@ -91,7 +91,7 @@ Aplicación disponible en:
 Al iniciar, si no existe, se crea automáticamente:
 
 - Email: `DEFAULT_ADMIN_EMAIL` (por defecto `admin@ssbw.local`)
-- Password: `DEFAULT_ADMIN_PASSWORD` (por defecto `Admin123!`)
+- Password: `DEFAULT_ADMIN_PASSWORD` (por defecto `!SqvXv!3KivhniR#8H@x^W`)
 
 En producción, **cambia siempre** `DEFAULT_ADMIN_PASSWORD` y `JWT_SECRET` mediante variables de entorno.
 
